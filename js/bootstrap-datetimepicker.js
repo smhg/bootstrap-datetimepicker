@@ -58,7 +58,7 @@
 				this.initialDate = options.initialDate || new Date();
 
 		this._attachEvents();
-		
+
 			this.formatViewType = "datetime";
 			if ('formatViewType' in options) {
 					this.formatViewType = options.formatViewType;
@@ -187,6 +187,8 @@
 		this.daysOfWeekDisabled = [];
 		this.setStartDate(options.startDate || this.element.data('date-startdate'));
 		this.setEndDate(options.endDate || this.element.data('date-enddate'));
+    this.setStartHour(options.startHour || this.element.data('date-starthour'));
+    this.setEndHour(options.endHour || this.element.data('date-endhour'));
 		this.setDaysOfWeekDisabled(options.daysOfWeekDisabled || this.element.data('date-days-of-week-disabled'));
 		this.fillDow();
 		this.fillMonths();
@@ -248,7 +250,7 @@
 				el.on(ev);
 			}
 		},
-		
+
 		_detachEvents: function(){
 			for (var i=0, el, ev; i<this._events.length; i++){
 				el = this._events[i][0];
@@ -291,7 +293,7 @@
 			if (
 				this.forceParse &&
 				(
-					this.isInput && this.element.val()  || 
+					this.isInput && this.element.val()  ||
 					this.hasInput && this.element.find('input').val()
 				)
 			)
@@ -389,6 +391,24 @@
 			this.update();
 			this.updateNavArrows();
 		},
+
+    setStartHour: function (hour) {
+      this.startHour = hour || undefined;
+      if (this.startHour !== undefined) {
+        this.startHour = parseInt(this.startHour, 10);
+      }
+      this.update();
+      this.updateNavArrows();
+    },
+
+    setEndHour: function (hour) {
+      this.endHour = hour || undefined;
+      if (this.endHour !== undefined) {
+        this.endHour = parseInt(this.endHour, 10);
+      }
+      this.update();
+      this.updateNavArrows();
+    },
 
 		setDaysOfWeekDisabled: function(daysOfWeekDisabled){
 			this.daysOfWeekDisabled = daysOfWeekDisabled || [];
@@ -508,7 +528,7 @@
 						this.picker.find('.datetimepicker-hours thead th:eq(1)')
 								.text(dayMonth + ' ' + dates[this.language].months[month] + ' ' + year);
 						this.picker.find('.datetimepicker-minutes thead th:eq(1)')
-								.text(dayMonth + ' ' + dates[this.language].months[month] + ' ' + year);		        
+								.text(dayMonth + ' ' + dates[this.language].months[month] + ' ' + year);
 				}
 				this.picker.find('tfoot th.today')
 						.text(dates[this.language].today)
@@ -595,7 +615,9 @@
 			for(var i=0;i<60;i+=this.minuteStep) {
 				var actual = UTCDate(year, month, dayMonth, hours, i, 0);
 				clsName = '';
-				if (actual.valueOf() < this.startDate || actual.valueOf() > this.endDate) {
+				if ((actual.valueOf() < this.startDate || actual.valueOf() > this.endDate)
+          || (this.startHour !== undefined && actual.getHours() < this.startHour)
+          || (this.endHour !== undefined && actual.getHours() > this.endHour)) {
 					clsName += ' disabled';
 				} else if (Math.floor(minutes/this.minuteStep) == Math.floor(i/this.minuteStep)) {
 					clsName += ' active';
@@ -666,7 +688,7 @@
 				hour = d.getUTCHours();
 			switch (this.viewMode) {
 				case 0:
-					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
+					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear()
 													 && month <= this.startDate.getUTCMonth()
 													 && day <= this.startDate.getUTCDate()
 													 && hour <= this.startDate.getUTCHours()) {
@@ -674,7 +696,7 @@
 					} else {
 						this.picker.find('.prev').css({visibility: 'visible'});
 					}
-					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
+					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear()
 													&& month >= this.endDate.getUTCMonth()
 													&& day >= this.endDate.getUTCDate()
 													&& hour >= this.endDate.getUTCHours()) {
@@ -684,14 +706,14 @@
 					}
 					break;
 				case 1:
-					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
+					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear()
 													 && month <= this.startDate.getUTCMonth()
 													 && day <= this.startDate.getUTCDate()) {
 						this.picker.find('.prev').css({visibility: 'hidden'});
 					} else {
 						this.picker.find('.prev').css({visibility: 'visible'});
 					}
-					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
+					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear()
 													&& month >= this.endDate.getUTCMonth()
 													&& day >= this.endDate.getUTCDate()) {
 						this.picker.find('.next').css({visibility: 'hidden'});
@@ -700,13 +722,13 @@
 					}
 					break;
 				case 2:
-					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
+					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear()
 													 && month <= this.startDate.getUTCMonth()) {
 						this.picker.find('.prev').css({visibility: 'hidden'});
 					} else {
 						this.picker.find('.prev').css({visibility: 'visible'});
 					}
-					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
+					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear()
 													&& month >= this.endDate.getUTCMonth()) {
 						this.picker.find('.next').css({visibility: 'hidden'});
 					} else {
@@ -1188,7 +1210,7 @@
 			this.picker.find('>div').hide().filter('.datetimepicker-'+DPGlobal.modes[this.viewMode].clsName).css('display', 'block');
 			this.updateNavArrows();
 		},
-		
+
 		reset: function(e) {
 			this._setDate(null, 'date');
 		}
