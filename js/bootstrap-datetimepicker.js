@@ -583,11 +583,19 @@
 			for (var i=0;i<24;i++) {
 				var actual = UTCDate(year, month, dayMonth, i);
 				clsName = '';
-				// We want the previous hour for the startDate
-				if ((actual.valueOf() + 3600000) <= this.startDate || actual.valueOf() > this.endDate) {
-					clsName += ' disabled';
-				} else if (hours == i) {
-					clsName += ' active';
+        if (this.startHour !== undefined || this.endHour !== undefined) {
+          if (i < this.startHour || i > this.endHour) {
+            clsName += ' disabled';
+          } else if (hours == i) {
+            clsName += ' active';
+          }
+				} else {
+          // We want the previous hour for the startDate
+          if ((actual.valueOf() + 3600000) <= this.startDate || actual.valueOf() > this.endDate) {
+					  clsName += ' disabled';
+          } else if (hours == i) {
+            clsName += ' active';
+          }
 				}
 								if (this.showMeridian && dates[this.language].meridiem.length == 2) {
 										meridian = (i<12?dates[this.language].meridiem[0]:dates[this.language].meridiem[1]);
@@ -615,9 +623,7 @@
 			for(var i=0;i<60;i+=this.minuteStep) {
 				var actual = UTCDate(year, month, dayMonth, hours, i, 0);
 				clsName = '';
-				if ((actual.valueOf() < this.startDate || actual.valueOf() > this.endDate)
-          || (this.startHour !== undefined && actual.getHours() < this.startHour)
-          || (this.endHour !== undefined && actual.getHours() > this.endHour)) {
+				if (actual.valueOf() < this.startDate  || actual.valueOf() > this.endDate) {
 					clsName += ' disabled';
 				} else if (Math.floor(minutes/this.minuteStep) == Math.floor(i/this.minuteStep)) {
 					clsName += ' active';
